@@ -74,8 +74,7 @@ class App extends React.Component {
   CreateNewContact = () => {
   const person = {
     name: this.state.newName,
-    number: this.state.newNumber,
-    id: CreateId(this.state.persons.map(e => e.id))
+    number: this.state.newNumber
   }
   return(
   Contacts
@@ -87,7 +86,7 @@ class App extends React.Component {
       newNumber: ''
     })
     this.addNotification(
-    <div>New contact name: "{person.name}" number: "{person.number}" was created.</div>, person.id)
+    <div>New contact name: "{person.name}" number: "{person.number}" was created.</div>, response.data.id)
   })
   .catch(error => {
     this.componentDidMount()
