@@ -34,11 +34,10 @@ class App extends React.Component {
       notifications: this.state.notifications.concat(notification)
     })
      setTimeout(() => {
-      const notifications = this.state.notifications.filter(e => e.id !== notification.id)
-      const silencedNotification = {...notification, show:false}
+      const notifications = this.state.notifications.filter(e => e !== notification)
 
       this.setState({
-        notifications: notifications.concat(silencedNotification)
+        notifications
       })
     }, 10000) 
   }
