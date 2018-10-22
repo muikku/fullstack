@@ -19,9 +19,11 @@
   "author": "Markus Muinonen",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^3.0.2",
     "cors": "^2.8.4",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",
+    "jsonwebtoken": "^8.3.0",
     "mongoose": "^5.3.2"
   },
   "devDependencies": {

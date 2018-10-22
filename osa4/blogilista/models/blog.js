@@ -6,16 +6,18 @@ const blogSchema = new Schema({
   title: { type: String, required: true },
   author: { type: String, required: true },
   url: { type: String, required: true },
-  likes: Number
+  likes: Number,
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 })
 
-blogSchema.statics.format = function(Blog) {
+blogSchema.statics.format = function(blog) {
   return ({
-    title: Blog.title,
-    author: Blog.author,
-    url: Blog.url,
-    likes: Blog.likes,
-    id: Blog._id
+    _id: blog._id,
+    title: blog.title,
+    author: blog.author,
+    url: blog.url,
+    likes: blog.likes,
+    user: blog.user
   })
 }
 

@@ -3,13 +3,20 @@ const { app, server } = require('../index')
 const api = supertest(app)
 const Blog = require('../models/blog')
 const initialBlogs = require('./testblog').testBlogs
-const { nonExistingId, blogsInDb } = require('./test_helper')
+const { nonExistingId, blogsInDb, usersInDb, userId0 } = require('./test_helper')
+const User = require('../models/user')
 
 beforeAll(async () => {
   await Blog.remove({})
 
   const blogObjs = initialBlogs.map(blog => new Blog(blog).save())
   await Promise.all(blogObjs)
+  const userX = new User({
+    username: 'x',
+    name: 'mr. X',
+    password: 'xxxx'
+  })
+  await userX.save()
 })
 
 test('all notes are returned as json by GET /api/notes', async () => {
@@ -33,7 +40,7 @@ test('individual blogs are returned as json by GET /api/blogs:id', async () => {
   const aBlog = blogInDatab[0]
 
   const response = await api
-    .get(`/api/blogs/${aBlog.id}`)
+    .get(`/api/blogs/${aBlog._id}`)
     .expect(200)
     .expect('Content-Type', /application\/json/)
 
@@ -68,7 +75,8 @@ test('post it', async () => {
     title: 'patterns',
     author: 'Chan',
     url: 'nice url here',
-    likes: 5
+    likes: 5,
+    userId: await userId0()
   }
 
   await api
@@ -86,11 +94,12 @@ test('post it', async () => {
 })
 
 test('no value is zero', async () => {
+
   const newBlog = {
     title: 'less defiend',
     author: 'anon',
     url: 'unknown origin',
-    likes: undefined
+    userId: await userId0()
   }
 
   await api
@@ -99,9 +108,7 @@ test('no value is zero', async () => {
 
   const response = await api
     .get('/api/blogs')
-
-  const likes = response.body.find(e => e.author === newBlog.author).likes
-  expect(likes).toBe(0)
+  expect(response.body.find(e => e.title === 'less defiend').likes).toBe(0)
 })
 
 test('title missing', async () => {
@@ -131,7 +138,8 @@ describe('deletion of a blog', async() => {
     addedBlog = new Blog({
       author: 'getting deleted',
       title: 'so much removed',
-      url: 'www.removeadds.com'
+      url: 'www.removeadds.com',
+      adult: undefined
     })
     await addedBlog.save()
   })
@@ -168,16 +176,118 @@ describe('PUT /api/blogs/:id', async () => {
   test('Blog property has changed', async () => {
     const changedBlog = { author: 'uusi', title: 'uusi', url: 'uusi', likes: 9, _id: existingBlog._id }
 
-    console.log('-------changedBlod id---- --', changedBlog)
-      await api
+    await api
       .put(`/api/blogs/${changedBlog._id}`)
       .send(changedBlog)
       .expect(201)
 
     const blogsAfter = await blogsInDb()
     const authors = blogsAfter.map(e => e.author)
-     expect(authors).not.toContain('vanha')
-     expect(authors).toContain('uusi')
+    expect(authors).not.toContain('vanha')
+    expect(authors).toContain('uusi')
+  })
+})
+
+
+
+describe('when there is initially one user at db', async () => {
+  beforeAll(async () => {
+    await User.remove({})
+    const user = new User({ username: 'root', passwordHash: 'sekret', name: 'Root Holmberg' })
+    await user.save()
+    const blog = new Blog({
+      author: 'jhkjhjkhlhjk',
+      title: 'kljölk',
+      url: 'www.remojhljkhdds.com',
+      user: await userId0() })
+    await blog.save()
+
+  })
+
+  test('POST /api/users succeeds with a fresh username', async () => {
+    const usersBeforeOperation = await usersInDb()
+
+    const newUser = {
+      username: 'kersa',
+      name: 'Titta Markkanen',
+      password: 'selectedOnly',
+      blogs: ['5a422a851b54a676234d17f7',
+        '5a422aa71b54a676234d17f8',
+        '5bcb1e7e317ff525374d930a']
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const newBlog = {
+      author: 'luthor',
+      title: 'batman',
+      url: 'urltown',
+      userId: await userId0()
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+
+    const usersAfterOperation = await usersInDb()
+
+    expect(usersAfterOperation.length).toBe(usersBeforeOperation.length+1)
+    const usernames = usersAfterOperation.map(u => u.username)
+    expect(usernames).toContain(newUser.username)
+  })
+
+  test('POST /api/users fails with proper statuscode and message if username already taken', async () => {
+    const usersBeforeOperation = await usersInDb()
+
+    const newUser = {
+      username: 'root',
+      name: 'Superuser',
+      password: 'salainen'
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body).toEqual({ error: 'username must be unique' })
+
+    const usersAfterOperation = await usersInDb()
+    expect(usersAfterOperation.length).toBe(usersBeforeOperation.length)
+  })
+
+  test('GET returns root user', async () => {
+    await api
+      .get('/api/users')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+  })
+
+
+  test('POST /api/users fails with proper statuscode and message if password is too short', async () => {
+    const usersBeforeOperation = await usersInDb()
+
+    const newUser = {
+      username: 'toor',
+      name: 'repuS',
+      password: 'sa'
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body).toEqual({ error: 'password must be at least 3 characters long' })
+
+    const usersAfterOperation = await usersInDb()
+    expect(usersAfterOperation.length).toBe(usersBeforeOperation.length)
   })
 })
 
