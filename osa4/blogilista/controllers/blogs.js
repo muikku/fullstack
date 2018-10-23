@@ -31,8 +31,7 @@ blogsRouter.post('/', async (request, response) => {
       return response.status(401).json({ error: 'token missing or invalid' })
     }
 
-    const properties = [body.author, body.title, body.url, body.userId]
-
+    const properties = [body.author, body.title, body.url]
     if(properties.includes(undefined)) {
       return response.status(400).json({ error: 'content missing' })
     }
@@ -54,8 +53,12 @@ blogsRouter.post('/', async (request, response) => {
 
     response.json(Blog.format(savedBlog))
   } catch (exception) {
-    console.log(exception)
-    response.status(500).json({ error: 'something went wrong' })
+    if (exception.name === 'JsonWebTokenError') {
+      response.status(401).json({ error: exception.message })
+    } else {
+      console.log(exception)
+      response.status(500).json({ error: 'something went wrong...' })
+    }
   }
 })
 
@@ -69,16 +72,21 @@ blogsRouter.delete('/:id', async (request, response) => {
 
     const user = await User.findById(decodedToken.id)
     const blog = await Blog.findById(request.params.id)
+    const auhtorized = blog.user.toString() === user._id.toString()
 
-    if(blog.user.toString() === user._id.toString()){
+    if(auhtorized){
       await Blog.findByIdAndRemove(request.params.id)
       response.status(204).end()
-    } else {
+    } else if(!auhtorized){
       response.status(403).send({ error: 'unauthorized' })
     }
   } catch (exception) {
-    console.log(exception)
-    response.status(400).send({ error: 'malformatted id' })
+    if (exception.name === 'JsonWebTokenError') {
+      response.status(401).json({ error: exception.message })
+    } else {
+      console.log(exception)
+      response.status(500).json({ error: 'something went wrong...' })
+    }
   }
 })
 
