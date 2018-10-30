@@ -1,9 +1,9 @@
-POST http://localhost:3001/api/users
+POST http://localhost:3003/api/users
 content-type: application/json
 
 {
-  "username": "ezra",
-  "name": "Titta Markkanen",
-  "password": "selectedOnly",
+  "username": "nero",
+  "name": "Keisari Ajoilta X",
+  "password": "Only",
   "blogs": []
 }

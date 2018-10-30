@@ -12,7 +12,7 @@ blogsRouter.get('/', async (request, response) => {
 
 blogsRouter.get('/:id', async (request, response) => {
   try{
-    const aBlog = await Blog.findById(request.params.id)
+    const aBlog = await Blog.findById(request.params.id).populate('user', { username: 1, name: 1 })
 
     aBlog ? response.json(Blog.format(aBlog)) : response.status(404).end()
 
@@ -21,6 +21,7 @@ blogsRouter.get('/:id', async (request, response) => {
     response.status(400).json({ error: 'unknown id' })
   }
 })
+
 
 blogsRouter.post('/', async (request, response) => {
   const body = request.body
@@ -47,7 +48,7 @@ blogsRouter.post('/', async (request, response) => {
     })
 
     const savedBlog = await blog.save()
-
+    await savedBlog.populate('user', { username: 1, name: 1 })
     user.blogs = user.blogs.concat(savedBlog._id)
     await user.save()
 
@@ -71,11 +72,22 @@ blogsRouter.delete('/:id', async (request, response) => {
     }
 
     const user = await User.findById(decodedToken.id)
+
     const blog = await Blog.findById(request.params.id)
-    const auhtorized = blog.user.toString() === user._id.toString()
+    const auhtorized = blog.user ? blog.user.toString() === user._id.toString() || blog.user.toString() === 'anonymous' : true
+    const deletethisid = blog._id
 
     if(auhtorized){
       await Blog.findByIdAndRemove(request.params.id)
+      const updatedUser = {
+        username: user.username,
+        name: user.name,
+        adult: user.adult,
+        passwordHash: user.passwordHash,
+        blogs: user.blogs.filter(e => e.toString() !== deletethisid.toString())
+      }
+
+      await User.findByIdAndUpdate(user._id, updatedUser, { new: true })
       response.status(204).end()
     } else if(!auhtorized){
       response.status(403).send({ error: 'unauthorized' })
