@@ -201,7 +201,6 @@ class App extends React.Component {
     const loginForm = () => (
       <Togglable buttonLabel="login">
       <LoginForm
-      visible={this.state.visible}
       username={this.state.username}
       password={this.state.password}
       handleChange={this.handleLoginFieldChange}
@@ -253,7 +252,7 @@ class App extends React.Component {
               </div>
 
               <ul>
-                {BlogsToShow.length === 0 ? <div>no blogs at the moment</div> : BlogsToShow.map(blog =>
+                {BlogsToShow.map(blog =>
                 <div key={blog._id}>
                 <Blog 
                 blog={blog} 
