@@ -5,25 +5,12 @@ import counterReducer from './counterReducer'
 
 const store = createStore(counterReducer)
 
-const all = () => {
-  let acc = 0
-  const object = store.getState()
-  for(var stat in object){
-    acc += object[stat]
-  }
-  return acc
-}
-
-const average = () =>  all() / 3
-
-const positive = () => (all() / store.getState().good).toFixed(2)
-
-const Statistiikka = () => {
-  const palautteita = all()
+const Statistiikka = (props) => {
+  const palautteita = store.getState().total
   if (palautteita === 0) {
     return (
       <div>
-        <h2>stataistiikka</h2>
+        <h2>statistiikka</h2>
         <div>ei yhtään palautetta annettu</div>
       </div>
     )
@@ -47,17 +34,13 @@ const Statistiikka = () => {
             <td>{store.getState().bad}</td>
           </tr>
           <tr>
-            <td>keskiarvo</td>
-            <td>{average()}</td>
-          </tr>
-          <tr>
             <td>positiivisia</td>
-            <td>{positive()} %</td>
+            <td>{store.getState().positive} %</td>
           </tr>
         </tbody>
       </table>
 
-      <button>nollaa tilasto</button>
+      <button onClick={props.clickMethod}>nollaa tilasto</button>
     </div >
   )
 }
@@ -75,7 +58,7 @@ class App extends React.Component {
         <button onClick={this.klik('GOOD')}>hyvä</button>
         <button onClick={this.klik('OK')}>neutraali</button>
         <button onClick={this.klik('BAD')}>huono</button>
-        <Statistiikka />
+        <Statistiikka clickMethod={this.klik('ZERO')}/>
       </div>
     )
   }
