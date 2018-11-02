@@ -8,7 +8,7 @@ const initialState = {
 }
 
 const counterReducer = (state = initialState, action) => {
-    const posPercent = (total, positive) => (positive / total * 100).toFixed(2)
+    const posPercent = (total, positive) => positive / total * 100
     const newState = {...state}
     switch (action.type) {
         case 'GOOD':

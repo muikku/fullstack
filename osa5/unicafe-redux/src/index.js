@@ -35,7 +35,7 @@ const Statistiikka = (props) => {
           </tr>
           <tr>
             <td>positiivisia</td>
-            <td>{store.getState().positive} %</td>
+            <td>{(store.getState().positive).toFixed(2)} %</td>
           </tr>
         </tbody>
       </table>
