@@ -1,27 +1,17 @@
 import React from 'react'
-import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
 import { anecdoteCreation } from './../reducers/anecdoteReducer'
 import { notify, clear } from './../reducers/notificationReducer'
 
 class AnecdoteForm extends React.Component {
-  componentDidMount() {
-    const { store } = this.context
-    this.unsubscribe = store.subscribe(() =>
-      this.forceUpdate()
-    )
-  }
-
-  componentWillUnmount() {
-    this.unsubscribe()
-  }
-
   handleSubmit = (e) => {
+    const { anecdoteCreation, notify, clear } = this.props
     e.preventDefault()
-    this.context.store.dispatch(anecdoteCreation(e.target.anecdote.value))
-    this.context.store.dispatch(notify(`${e.target.anecdote.value} created`))
+    anecdoteCreation(e.target.anecdote.value)
+    notify(`${e.target.anecdote.value} created`)
     e.target.anecdote.value = ''
     setTimeout(() => {
-      this.context.store.dispatch(clear())
+      clear()
     }, 5000)
   }
   render() {
@@ -37,8 +27,13 @@ class AnecdoteForm extends React.Component {
   }
 }
 
-AnecdoteForm.contextTypes = {
-  store: PropTypes.object
+const mapStateToProps = (state) => {
+  return {
+    notification: state.notification,
+    anecdote: state.anecdote
+  }
 }
 
-export default AnecdoteForm
+const ConnectedAnecdoteForm = connect(mapStateToProps, { anecdoteCreation, notify, clear })(AnecdoteForm)
+
+export default ConnectedAnecdoteForm
