@@ -4,11 +4,14 @@ import Anecdote from './Anecdote'
 import Filter from './Filter'
 import { notify, clear } from './../reducers/notificationReducer'
 import { connect } from 'react-redux'
+import anecdoteService from './../services/anecdotes'
 
 class AnecdoteList extends React.Component {
-  handleClick = (anecdote) => () => {
+  handleClick = (anecdote) => async () => {
     const { anecdoteVote, notify, clear } = this.props
+    const votedAnecdote = await anecdoteService.update({ ...anecdote, votes: anecdote.votes + 1 }, anecdote.id)
     return(
+      votedAnecdote,
       anecdoteVote(anecdote.id),
       notify(`liked ${anecdote.content}`),
       setTimeout(() => {
@@ -36,7 +39,6 @@ class AnecdoteList extends React.Component {
 const anecdoteToShow = (anecdotes, filter) => {
   const anecdoteList = anecdotes
     .sort((a, b) => b.votes - a.votes)
-
   const showAllOrFilter = filter === 'ALL' ?
     anecdoteList :
     anecdoteList
