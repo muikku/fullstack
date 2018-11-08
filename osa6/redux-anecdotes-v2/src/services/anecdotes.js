@@ -12,8 +12,8 @@ const createNew = async (content) => {
   return response.data
 }
 
-const update = async (replacement, id) => {
-  const response = await axios.put(`${url}/${id}`, replacement)
+const update = async (replacement) => {
+  const response = await axios.put(`${url}/${replacement.id}`, replacement)
   return response.data
 }
 
