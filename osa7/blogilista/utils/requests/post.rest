@@ -1,0 +1,11 @@
+POST http://localhost:3003/api/blogs
+content-type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImtlcnNhIiwiaWQiOiI1YmNjNTI5MDM5YjgzNzEwMWViYTQxMzUiLCJpYXQiOjE1NDAxMTg2MzN9.CzvkhFSsKGxkmMFtBUCVA4A8XSc20tZUZNqgEy8lq_I
+
+{
+    "title": "oding",
+    "author": "Aon66",
+    "url": "http:...",
+    "likes": 8, 
+    "userId": ""
+}
