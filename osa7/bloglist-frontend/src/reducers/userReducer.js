@@ -23,6 +23,21 @@ const userReducer = (state = defaultState(), action) => {
     }
 }
 
+export const initUser = () => {
+    return async (dispatch) => {
+        const loggedUserJson = window.localStorage.getItem('loggedBlogUser')
+        if (loggedUserJson){
+          const user = await JSON.parse(loggedUserJson)
+          blogService.setToken(user.token)
+    /*       const userBlogs = await blogService.getUserBlogs() */
+            dispatch({
+                type: 'LOGIN',
+                user
+            })
+        }
+        return null
+    }
+}
 
 export const login = (username, password) => {
     return async (dispatch) => {

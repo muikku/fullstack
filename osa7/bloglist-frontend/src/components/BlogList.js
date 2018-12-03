@@ -5,13 +5,19 @@ import { toggle } from '../reducers/toggleReducer'
 import { notify } from './../reducers/notificationReducer'
 import { likeBlog, deleteBlog } from './../reducers/blogReducer'
 
-    
+const deletable = async (blogs, id) => {
+        const acceptedBlogs = await blogs
+        console.log('this is id', id, 'here are accepted', acceptedBlogs)
+        const isItDeletable = acceptedBlogs.map(b => b._id).includes(id)
+        console.log('deletable here', isItDeletable)
+        return isItDeletable
+}
 
 
 const BlogList = (props) => (
             <div>
                 <div>
-                    <button onClick={() => props.toggle()}>
+                    <button onClick={() => props.toggle()}>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
                         sort by {props.thelabel}
                     </button>
                     <p>sorted by {props.theshowLabel}</p>
@@ -24,7 +30,7 @@ const BlogList = (props) => (
                             <Blog 
                                 blog={blog} 
                                 likeABlog={() => props.likeBlog(blog)} 
-                                remove={props.deletableByUser.includes(blog._id) ? props.deleteBlog(blog._id) : null}> 
+                                remove={props.userBlogs.includes(blog._id) ? () => props.deleteBlog(blog._id) : null}> 
                             </Blog>
                         </div>
                         )
@@ -44,19 +50,21 @@ const blogsToShow = (blogs, toggle) => {
   return BlogsToShow
 }
 
+const userBlogsIds = (blogs) => {
+    const ids = blogs.map(b => b._id)
+    return ids
+}
+
 const label = (toggle) => !toggle ? 'most likes' : 'title'
 
 const showLabel = (toggle) => toggle ? 'most likes' : 'title'
 
-const deletableBlogs = (blogs) => {
-    console.log(blogs)
-    return blogs.map(e => e._id)
-}
-
 const mapStateToProps = (state) => {
+    console.log(state.userBlogs)
+    console.log(state.blogs)
     return {
         showBlogs: blogsToShow(state.blogs, state.toggle),
-        deletableByUser: deletableBlogs(state.userBlogs),
+        userBlogs: userBlogsIds(state.userBlogs),
         theLabel: label(state.toggle),
         theshowLabel: showLabel(state.toggle)
     }

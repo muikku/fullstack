@@ -6,7 +6,7 @@ import Togglable from './components/Togglable'
 import BlogList from './components/BlogList'
 import { initializeBlogs, likeBlog, deleteBlog } from './reducers/blogReducer'
 import { initializeUserBlogs } from './reducers/userBlogsReducer'
-import { login, logout } from './reducers/userReducer'
+import { login, logout, initUser } from './reducers/userReducer'
 import blogReducer from './reducers/blogReducer'
 import userReducer from './reducers/userReducer'
 
@@ -14,11 +14,11 @@ import userReducer from './reducers/userReducer'
 
 class App extends React.Component {
   componentDidMount = async () => {
+    this.props.initUser()
+
+    this.props.initializeUserBlogs()
+    
     this.props.initializeBlogs()
-    if(this.props.userState !== null){
-      
-      this.props.initializeUserBlogs()
-    }
   } 
 
 
@@ -45,7 +45,7 @@ class App extends React.Component {
         {this.props.user === null ?
         loginForm() :
         <div>
-          <p>{this.props.user.toString()} logged in {logoutButton()}</p>
+          <p>{this.props.user.username} logged in {logoutButton()}</p>
           
           <Togglable buttonLabel="new blog" ref={component => this.blogForm = component}>
           <BlogForm      />
@@ -68,4 +68,4 @@ const mapStateToProps = (state) => {
   }
 }
 
-export default connect(mapStateToProps, { initializeBlogs, initializeUserBlogs, login, logout, blogReducer, userReducer, deleteBlog, likeBlog })(App)
+export default connect(mapStateToProps, { initializeBlogs, initializeUserBlogs, login, logout, initUser, blogReducer, userReducer, deleteBlog, likeBlog })(App)

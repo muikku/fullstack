@@ -16,14 +16,11 @@ import blogService from './../services/blogs'
 export const initializeUserBlogs = () => {
     return async (dispatch) => {
         const loggedUserJson = window.localStorage.getItem('loggedBlogUser')
-        const userBlogs = []
-        if (loggedUserJson){
         const user = await JSON.parse(loggedUserJson)
         blogService.setToken(user.token)
-        const actualuserBlogs = await blogService.getUserBlogs()
-        console.log(actualuserBlogs)
-            userBlogs.concat(actualuserBlogs)
-        }
+        const userBlogs = await blogService.getUserBlogs()
+
+        console.log('asdfasdfasdf', userBlogs)
         dispatch({
             type: 'INITUSERBLOGS',
             userBlogs
