@@ -1,5 +1,5 @@
 const toggleReducer = (store = true, action) => {
-    switch(store, action.type) {
+    switch(action.type) {
         case 'TOGGLE':
         return !store
         default:

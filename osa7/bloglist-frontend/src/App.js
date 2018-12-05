@@ -6,21 +6,26 @@ import Togglable from './components/Togglable'
 import BlogList from './components/BlogList'
 import { initializeBlogs, likeBlog, deleteBlog } from './reducers/blogReducer'
 import { initializeUserBlogs } from './reducers/userBlogsReducer'
-import { login, logout, initUser } from './reducers/userReducer'
+import { login, logout, inituser } from './reducers/userReducer'
 import blogReducer from './reducers/blogReducer'
 import userReducer from './reducers/userReducer'
+import blogService from './services/blogs'
 
 
 
 class App extends React.Component {
   componentDidMount = async () => {
-    this.props.initUser()
-
-    this.props.initializeUserBlogs()
-    
+    const loggedUserJson = window.localStorage.getItem('loggedBlogUser')
+    if (loggedUserJson){
+      const user = await JSON.parse(loggedUserJson)
+      console.log(user)
+      blogService.setToken(user.token)
+      this.props.inituser(user)
+      this.props.initializeUserBlogs()
+    }
     this.props.initializeBlogs()
   } 
-///sdfkjj
+
 
   render() {
     const loginForm = () => (
@@ -68,4 +73,4 @@ const mapStateToProps = (state) => {
   }
 }
 
-export default connect(mapStateToProps, { initializeBlogs, initializeUserBlogs, login, logout, initUser, blogReducer, userReducer, deleteBlog, likeBlog })(App)
+export default connect(mapStateToProps, { initializeBlogs, initializeUserBlogs, inituser, login, logout, blogReducer, userReducer, deleteBlog, likeBlog })(App)

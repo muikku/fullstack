@@ -1,7 +1,7 @@
 import Notification from './../components/Notification'
 
 const notificationReducer = (state = [], action) => {
-    switch(state, action.type) {
+    switch(action.type) {
         case 'NOTIFY':
         const newState = state.map(n => n.key).includes(action.notification.key) ? state : state.concat(action.notification)
         console.log(newState)

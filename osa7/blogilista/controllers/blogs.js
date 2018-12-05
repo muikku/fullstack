@@ -44,15 +44,15 @@ blogsRouter.post('/', async (request, response) => {
       author: body.author,
       url: body.url,
       likes: typeof body.likes !== 'number' ? 0 : body.likes,
-      user: user._id
+      user: {username: user.username, name: user.name, _id: user._id}
     })
 
     const savedBlog = await blog.save()
-    await savedBlog.populate('user', { username: 1, name: 1 })
+    const populatedBlog = await savedBlog.populate('user', { username: 1, name: 1 })
     user.blogs = user.blogs.concat(savedBlog._id)
     await user.save()
 
-    response.json(Blog.format(savedBlog))
+    response.json(Blog.format(populatedBlog))
   } catch (exception) {
     if (exception.name === 'JsonWebTokenError') {
       response.status(401).json({ error: exception.message })
@@ -117,8 +117,9 @@ blogsRouter.put('/:id', async (request, response) => {
     title: body.title,
     url: body.url,
     likes: typeof body.likes !== 'number' ? 0 : body.likes,
-    user: body.user
+    user: { _id: body.user._id, username: body.user.username, name: body.user.name }
   }
+
 
   try{
     await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })

@@ -1,4 +1,7 @@
 import React from 'react'
+import { likeBlog, deleteBlog } from './../reducers/blogReducer'
+import { notify } from './../reducers/notificationReducer'
+import { connect } from 'react-redux'
 
 class Blog extends React.Component {
     constructor(props) {
@@ -16,12 +19,11 @@ class Blog extends React.Component {
         const hideWhenVisible = { display: this.state.visible ? 'none' : ''}
         const showWhenVisible = { display: this.state.visible ? '' : 'none'}
         const blog = this.props.blog
-        const likeABlog = this.props.likeABlog
-        const user = this.props.blog.user ? this.props.blog.user.name : 'anonymous'
-        const remove = this.props.remove
+        const user = () => blog.user ? blog.user.name : 'anonymous'
+
         const removeButton = () => (
             <div>
-            <button onClick={remove}>delete</button>
+            <button onClick={() => this.props.deleteBlog(blog._id)}>delete</button>
             </div>
         )
         return (
@@ -39,10 +41,10 @@ class Blog extends React.Component {
                     <div>{blog.title} {blog.author}</div>
                     <div>{blog.url}</div> 
                     <div>{blog.likes} likes {' '}
-                    <button onClick={likeABlog}>like</button>
+                    <button onClick={() => this.props.likeBlog(blog)}>like</button>
                     </div>
-                    <div>added by {user}</div>
-                    {remove ? removeButton() : null}
+                    <div>added by {user()}</div>
+                    {this.props.userBlogs.includes(blog._id) ? removeButton() : null}
                     </div>
                 </div>
                 </div>
@@ -51,4 +53,15 @@ class Blog extends React.Component {
     }
 }
 
-export default Blog
+const userBlogsIds = (blogs) => {
+    const ids = blogs.map(b => b._id)
+    return ids
+}
+
+const mapStateToProps = (state) => {
+    return {
+        userBlogs: userBlogsIds(state.userBlogs)
+    }
+}
+
+export default connect(mapStateToProps, { likeBlog, deleteBlog, notify })(Blog)

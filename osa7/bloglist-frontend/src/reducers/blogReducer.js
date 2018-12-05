@@ -1,28 +1,28 @@
 import blogs from '../services/blogs'
 
-const blogReducer = (store = [], action) => {
+const blogReducer = (state = [], action) => {
     switch(action.type) {
         case 'CREATE':
-        return store.concat(action.content)
+        return state.concat(action.content)
         case 'INIT':
         return action.content
         case 'LIKE':
-        const id = action.content.id
-        const blogToChange = store.find(a => a.id === id)
-        const alteredBlog = { ...blogToChange, votes: blogToChange.votes + 1 }
-        return store.map(a => a.id !== id ? a : alteredBlog)
+        const id = action.id
+        const blogToLike = state.find(b => b._id === id)
+        const changedBlog = { ...blogToLike, likes: blogToLike.likes + 1 }
+        return state.map(b => b._id !== id ? b : changedBlog)
         case 'DELETE':
-        let otherfilteredStore = store.filter(b => b.id !== action.id)
+        let otherfilteredStore = state.filter(b => b._id !== action.id)
         return otherfilteredStore
         default:
-        return store
+        console.log(state)
+        return state
     }
 }
 
 export const createBlog = (blog) => {
     return async (dispatch) => {
         const createdblog = await blogs.create(blog)
-        console.log(createBlog)
         dispatch({
             type: 'CREATE',
             content: createdblog
@@ -46,7 +46,7 @@ export const likeBlog = (blog) => {
         const updatedBlog = await blogs.update(likedBlog._id, likedBlog)
         dispatch({
             type: 'VOTE',
-            content: updatedBlog
+            id: updatedBlog._id
         })
     }
 }

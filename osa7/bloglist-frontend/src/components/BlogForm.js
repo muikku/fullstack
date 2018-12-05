@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import { createBlog } from './../reducers/blogReducer'
 import { notify } from './../reducers/notificationReducer'
 
+
 class blogForm extends React.Component {
     onSubmit = async (e) => {
             e.preventDefault()
@@ -21,7 +22,8 @@ class blogForm extends React.Component {
               author: e.target.blogAuthor.value,
               title: e.target.blogTitle.value,
               url: e.target.blogUrl.value,
-              likes: 0
+              likes: 0,
+              user: {username: this.props.user.username, name: this.props.user.name, _id: this.props.user._id}
             })
 
 
@@ -73,4 +75,10 @@ class blogForm extends React.Component {
     }
 } 
 
-  export default connect(null, { createBlog, notify })(blogForm)
+const mapStateToProps = (state) => {
+  return {
+    user: state.user
+  }
+}
+
+  export default connect(mapStateToProps, { createBlog, notify })(blogForm)

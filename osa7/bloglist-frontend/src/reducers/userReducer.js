@@ -1,21 +1,10 @@
 import loginService from './../services/login'
 import blogService from './../services/blogs'
 
-const defaultState = async () => {
-    const loggedUserJson = window.localStorage.getItem('loggedBlogUser')
-    if (loggedUserJson){
-      const user = await JSON.parse(loggedUserJson)
-      blogService.setToken(user.token)
-/*       const userBlogs = await blogService.getUserBlogs() */
-        return user
-    }
-    return null
-}
-
-const userReducer = (state = defaultState(), action) => {
+const userReducer = (state = null, action) => {
     switch(action.type) {
         case 'LOGIN':
-        return action.user
+        return action.data
         case 'LOGOUT':
         return null
         default:
@@ -23,31 +12,22 @@ const userReducer = (state = defaultState(), action) => {
     }
 }
 
-export const initUser = () => {
+export const inituser = (user) => {
     return async (dispatch) => {
-        const loggedUserJson = window.localStorage.getItem('loggedBlogUser')
-        if (loggedUserJson){
-          const user = await JSON.parse(loggedUserJson)
-          blogService.setToken(user.token)
-    /*       const userBlogs = await blogService.getUserBlogs() */
-            dispatch({
-                type: 'LOGIN',
-                user
-            })
-        }
-        return null
+        dispatch({
+            type: 'LOGIN',
+            data: user
+        })
     }
 }
 
 export const login = (username, password) => {
     return async (dispatch) => {
         const user = await loginService.login({username: username, password: password})
-        blogService.setToken(user.token)
-/*         const userBlogs = await blogService.getUserBlogs() */
         window.localStorage.setItem('loggedBlogUser', JSON.stringify(user))
         dispatch({
             type: 'LOGIN',
-            user
+            data: user
         })
     }
 }
