@@ -1,12 +1,13 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
+const Comments = require('../models/comment')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 
 blogsRouter.get('/', async (request, response) => {
   const allBlogs = await Blog
     .find({})
-    .populate('user', { username: 1, name: 1 })
+    .populate('user', { username: 1, name: 1, _id: 1 })
   response.json(allBlogs.map(Blog.format))
 })
 
@@ -15,6 +16,18 @@ blogsRouter.get('/:id', async (request, response) => {
     const aBlog = await Blog.findById(request.params.id).populate('user', { username: 1, name: 1 })
 
     aBlog ? response.json(Blog.format(aBlog)) : response.status(404).end()
+
+  } catch (exception) {
+    console.log(exception)
+    response.status(400).json({ error: 'unknown id' })
+  }
+})
+
+blogsRouter.get('/all/comments', async (request, response) => {
+  try{
+    const comments = await Comments.find({}) ///populate if needen
+
+    comments ? response.json(comments.map(Comments.format)) : response.status(404).end()
 
   } catch (exception) {
     console.log(exception)
@@ -53,6 +66,43 @@ blogsRouter.post('/', async (request, response) => {
     await user.save()
 
     response.json(Blog.format(populatedBlog))
+  } catch (exception) {
+    if (exception.name === 'JsonWebTokenError') {
+      response.status(401).json({ error: exception.message })
+    } else {
+      console.log(exception)
+      response.status(500).json({ error: 'something went wrong...' })
+    }
+  }
+})
+
+blogsRouter.post('/:id/comments', async (request, response) => {
+  const body = request.body
+  try{
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+
+    if(!request.token || !decodedToken.id) {
+      return response.status(401).json({ error: 'token missing or invalid' })
+    }
+
+    const properties = [body.message, body.blogId]
+    if(properties.includes(undefined)) {
+      return response.status(400).json({ error: 'content missing' })
+    }
+
+   /*  const user = await User.findById(decodedToken.id) */
+
+    const comment = new Comments({
+      message: body.message,
+      blogId: body.blogId
+    })
+
+    const savedComments = await comment.save()
+    /* const populatedBlog = await savedBlog.populate('user', { username: 1, name: 1 }) */
+    /* user.blogs = user.blogs.concat(savedBlog._id) */
+    /* await user.save() */
+
+    response.json(Comments.format(savedComments))
   } catch (exception) {
     if (exception.name === 'JsonWebTokenError') {
       response.status(401).json({ error: exception.message })

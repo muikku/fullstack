@@ -1,12 +1,12 @@
 import React from 'react'
-import Blog from './Blog'
 import { connect } from 'react-redux'
 import { toggle } from '../reducers/toggleReducer'
 import { notify } from './../reducers/notificationReducer'
 import { likeBlog, deleteBlog } from './../reducers/blogReducer'
+import { Link } from 'react-router-dom'
 
-
-const BlogList = (props) => (
+const BlogList = (props) => {
+    return (
             <div>
                 <div>
                     <button onClick={() => props.toggle()}>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
@@ -17,17 +17,15 @@ const BlogList = (props) => (
 
               <ul>
                     {
-                        props.showBlogs.map(blog =>
-                        <div key={blog._id}>
-                            <Blog
-                                blog={blog} >
-                            </Blog>
+                        props.showBlogs.map(b =>
+                        <div key={b._id}>
+                        <Link to={`/blogs/${b._id}`}>{b.title} by {b.author}</Link>
                         </div>
                         )
                     }
               </ul>
             </div>
-)
+)}
 
 
 

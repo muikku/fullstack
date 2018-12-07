@@ -1,67 +1,70 @@
 import React from 'react'
-import { likeBlog, deleteBlog } from './../reducers/blogReducer'
-import { notify } from './../reducers/notificationReducer'
+import { Redirect, Link } from 'react-router-dom'
 import { connect } from 'react-redux'
+import { getComments, createComment } from './../reducers/commentsReducer'
 
-class Blog extends React.Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            visible: false
-        }
+
+
+const Blog = (props) => {
+    const blog = props.blog
+    const propsReady = () => (blog !== undefined && props.userBlogs !== undefined) ? true : false
+    const onSubmit = (e) => {
+        e.preventDefault()
+        const comment = {message: e.target.message.value, blogId: blog._id }
+        props.createComment(comment)
+        ///notify
+        e.target.message.value = ''
     }
-
-    toggleVisibility = () => {
-        this.setState({ visible: !this.state.visible })
-    }
-
-    render() {
-        const hideWhenVisible = { display: this.state.visible ? 'none' : ''}
-        const showWhenVisible = { display: this.state.visible ? '' : 'none'}
-        const blog = this.props.blog
-        const user = () => blog.user ? blog.user.name : 'anonymous'
-
-        const removeButton = () => (
-            <div>
-            <button onClick={() => this.props.deleteBlog(blog._id)}>delete</button>
-            </div>
-        )
         return (
-            <div>
-
-                <div onClick={this.toggleVisibility} style={hideWhenVisible} className="toggle1">
-                <div className="content-before-click">
-                    <div className="blog" key={blog.id}>{blog.title} {blog.author}</div>
-                </div>
-                </div>
-
-                <div onClick={this.toggleVisibility} style={showWhenVisible} className="toggle2">
+            <div> {
+                propsReady() ?
                 <div className="content-after-click">
-                    <div className="blog" key={blog.id}>
+                    <div className="blog" key={blog._id}>
                     <div>{blog.title} {blog.author}</div>
                     <div>{blog.url}</div> 
                     <div>{blog.likes} likes {' '}
-                    <button onClick={() => this.props.likeBlog(blog)}>like</button>
+                    <button onClick={props.like}>like</button>
                     </div>
-                    <div>added by {user()}</div>
-                    {this.props.userBlogs.includes(blog._id) ? removeButton() : null}
+                    <div>added by {blog.user.name ? blog.user.name : 'anonymous'}</div>
+                    {props.userBlogs.map(b => b._id).includes(blog._id) ? <button onClick={props.delete}>delete</button> : null}
+                    </div>
+                    <div>
+                        <h2>comments</h2>
+                        <form onSubmit={onSubmit}>
+                        <input
+                        name="message"
+                        />
+                        <button type="submit">add comment</button>
+                        </form>
+                        {props.comments.filter(c => c.blogId === blog._id).map(c => <div key={c._id}>{c.message}</div>)}
                     </div>
                 </div>
-                </div>
+                :
+                null
+            } </div>
+        )
+}
+
+class Blogx extends React.Component {
+    componentDidMount() {
+
+    }
+    componentDidUpdate() {
+
+    }
+    render() {
+        return (
+            <div>
+
             </div>
         )
     }
 }
 
-const userBlogsIds = (blogs) => {
-    const ids = blogs.map(b => b._id)
-    return ids
-}
-
-const mapStateToProps = (state) => {
+const deliverProps = (state) => {
     return {
-        userBlogs: userBlogsIds(state.userBlogs)
+        comments: state.comments
     }
 }
 
-export default connect(mapStateToProps, { likeBlog, deleteBlog, notify })(Blog)
+export default connect(deliverProps, { getComments, createComment })(Blog)

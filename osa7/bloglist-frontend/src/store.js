@@ -6,6 +6,7 @@ import userReducer from './reducers/userReducer'
 import toggleReducer from './reducers/toggleReducer'
 import userBlogsReducer from './reducers/userBlogsReducer';
 import usersReducer from './reducers/usersReducer'
+import commentsReducer from './reducers/commentsReducer'
 
 const reducer = combineReducers({
     blogs: blogReducer,
@@ -13,7 +14,8 @@ const reducer = combineReducers({
     user: userReducer,
     userBlogs: userBlogsReducer,
     toggle: toggleReducer,
-    users: usersReducer
+    users: usersReducer,
+    comments: commentsReducer
 })
 
 const store = createStore(

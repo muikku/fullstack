@@ -24,6 +24,23 @@ export const initializeUserBlogs = () => {
 
     }
 
+export const refreshUserBlogs = () => {
+    return async (dispatch) => {
+    const loggedUserJson = window.localStorage.getItem('loggedBlogUser')
+    if (loggedUserJson){
+      const user = await JSON.parse(loggedUserJson)
+      blogService.setToken(user.token)
+      const userBlogs = await blogService.getUserBlogs()
+      dispatch({
+        type: 'INITUSERBLOGS',
+        userBlogs
+    })
+    } else {
+        dispatch(console.log('get user blog failed'))
+    }
+}
+}
+
 
 export const clear = () => {
     return async (dispatch) => {

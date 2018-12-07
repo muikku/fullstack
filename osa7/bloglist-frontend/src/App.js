@@ -14,6 +14,11 @@ import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
 import Users from './components/Users'
 import User from './components/User'
 import { getUsers } from './reducers/usersReducer'
+import Blog from './components/Blog'
+import { notify } from './reducers/notificationReducer'
+import { getComments } from './reducers/commentsReducer'
+
+
 
 const Blogs = () => {
   return (
@@ -37,6 +42,7 @@ class App extends React.Component {
       this.props.initializeUserBlogs()
     }
     this.props.initializeBlogs()
+    this.props.getComments()
     this.props.getUsers()
   } 
 
@@ -44,37 +50,45 @@ class App extends React.Component {
   render() {
 
 
-    const logoutButton = () => (
+    const loggedIn = () => (
+      <div>
+      {this.props.user.username} logged in
         <button onClick={this.props.logout}>
         logout
         </button>
+      </div>
     )
 
     const frontpage = () => {
       return (<div>{this.props.user === null ?
-      <Togglable buttonLabel="login">
-      <LoginForm      />
-      </Togglable>
+      <Link to="/login">login</Link>
        :
-<div>
-  <p>{this.props.user.username} logged in {logoutButton()}</p>
-      {Blogs()}
-</div>
-}
-</div>)
+      <div>
+        {loggedIn()}
+      </div>
+      }
+      </div>)
     }
+
+    const FindBlog = (id) => this.props.showBlogs.find(b => b._id === id)
 
     return (
       <div>
         <Router>
           <div>
   
-          <h1>blog app</h1>        <div>
-           <Link to="/blogs">blogs</Link>
+          <h1>blog app</h1>        
+  
+        {this.props.notifications.map(e => e)}
+        <div>
+            <Link to="/blogs">blogs</Link>
             <Link to="/users">users</Link>
           </div>
-        {this.props.notifications.map(e => e)}
-          <Route exact path="/" render={() => frontpage()} />
+          <Route path="/" render={() => frontpage()} />
+          <Route exact path="/login" render={({history}) => <LoginForm history={history} login={this.props.login} notify={this.props.notify}/>} />
+          
+          {this.props.user ? <div>
+   
           <Route exact path="/blogs" render={() => Blogs()} />
           <Route exact path="/users" render={() => 
           <Users users={this.props.users}/>} 
@@ -82,6 +96,19 @@ class App extends React.Component {
           <Route exact path="/users/:id" render={({match}) => 
             <User user={this.props.users.find(u => u._id === match.params.id)} />}
           />
+          <Route exact path="/blogs/:id" render={({match}) => 
+          <Blog 
+          blog={FindBlog(match.params.id)} 
+          like={() => this.props.likeBlog(FindBlog(match.params.id))}
+          userBlogs={this.props.userBlogs}
+          delete={() => this.props.deleteBlog(match.params.id)}
+          /> 
+          }
+          />
+          </div>
+          :
+          null
+        }
       
           </div>
         </Router>
@@ -96,8 +123,9 @@ const mapStateToProps = (state) => {
     showBlogs: state.blogs,
     user: state.user,
     notifications: state.notification,
-    users: state.users
+    users: state.users,
+    userBlogs: state.userBlogs
   }
 }
 
-export default connect(mapStateToProps, { initializeBlogs, initializeUserBlogs, inituser, getUsers, login, logout, blogReducer, userReducer, deleteBlog, likeBlog })(App)
+export default connect(mapStateToProps, { initializeBlogs, getComments, initializeUserBlogs, inituser, getUsers, login, logout, notify, blogReducer, userReducer, deleteBlog, likeBlog })(App)
