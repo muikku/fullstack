@@ -10,29 +10,38 @@ import { login, logout, inituser } from './reducers/userReducer'
 import blogReducer from './reducers/blogReducer'
 import userReducer from './reducers/userReducer'
 import blogService from './services/blogs'
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
+import Users from './components/Users'
+import User from './components/User'
+import { getUsers } from './reducers/usersReducer'
 
+const Blogs = () => {
+  return (
+    <div>
+      <Togglable buttonLabel="new blog">
+      <BlogForm      />
+      </Togglable>
 
+      <BlogList />
+    </div>
+  )
+}
 
 class App extends React.Component {
   componentDidMount = async () => {
     const loggedUserJson = window.localStorage.getItem('loggedBlogUser')
     if (loggedUserJson){
       const user = await JSON.parse(loggedUserJson)
-      console.log(user)
       blogService.setToken(user.token)
       this.props.inituser(user)
       this.props.initializeUserBlogs()
     }
     this.props.initializeBlogs()
+    this.props.getUsers()
   } 
 
 
   render() {
-    const loginForm = () => (
-      <Togglable buttonLabel="login">
-      <LoginForm      />
-      </Togglable>
-    )
 
 
     const logoutButton = () => (
@@ -41,24 +50,41 @@ class App extends React.Component {
         </button>
     )
 
+    const frontpage = () => {
+      return (<div>{this.props.user === null ?
+      <Togglable buttonLabel="login">
+      <LoginForm      />
+      </Togglable>
+       :
+<div>
+  <p>{this.props.user.username} logged in {logoutButton()}</p>
+      {Blogs()}
+</div>
+}
+</div>)
+    }
 
     return (
       <div>
-        <h1>blogs</h1>
+        <Router>
+          <div>
+  
+          <h1>blog app</h1>        <div>
+           <Link to="/blogs">blogs</Link>
+            <Link to="/users">users</Link>
+          </div>
         {this.props.notifications.map(e => e)}
+          <Route exact path="/" render={() => frontpage()} />
+          <Route exact path="/blogs" render={() => Blogs()} />
+          <Route exact path="/users" render={() => 
+          <Users users={this.props.users}/>} 
+          />
+          <Route exact path="/users/:id" render={({match}) => 
+            <User user={this.props.users.find(u => u._id === match.params.id)} />}
+          />
       
-        {this.props.user === null ?
-        loginForm() :
-        <div>
-          <p>{this.props.user.username} logged in {logoutButton()}</p>
-          
-          <Togglable buttonLabel="new blog" ref={component => this.blogForm = component}>
-          <BlogForm      />
-          </Togglable>
-
-          <BlogList />
-        </div>
-        }
+          </div>
+        </Router>
      </div>
     )
   }
@@ -69,8 +95,9 @@ const mapStateToProps = (state) => {
   return  {
     showBlogs: state.blogs,
     user: state.user,
-    notifications: state.notification
+    notifications: state.notification,
+    users: state.users
   }
 }
 
-export default connect(mapStateToProps, { initializeBlogs, initializeUserBlogs, inituser, login, logout, blogReducer, userReducer, deleteBlog, likeBlog })(App)
+export default connect(mapStateToProps, { initializeBlogs, initializeUserBlogs, inituser, getUsers, login, logout, blogReducer, userReducer, deleteBlog, likeBlog })(App)

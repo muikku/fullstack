@@ -15,7 +15,6 @@ const blogReducer = (state = [], action) => {
         let otherfilteredStore = state.filter(b => b._id !== action.id)
         return otherfilteredStore
         default:
-        console.log(state)
         return state
     }
 }
