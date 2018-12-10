@@ -28,7 +28,7 @@ const update = async (id, newBlog) => {
 
 const remove = async (id) => {
   const config = {
-    headers: {'Authorization': token }
+    headers: { 'Authorization': token }
   }
   const response = await axios.delete(`${baseUrl}/${id}`, config)
   return response.data
@@ -44,14 +44,14 @@ const getUserBlogs = async () => {
 
 const commentBlog = async (comments) => {
   const config = {
-    headers: {'Authorization': token }
+    headers: { 'Authorization': token }
   }
   const request = await axios.post(`/api/blogs/${comments.blogId}/comments`, comments, config)
   return request.data
 }
 
 const getComments = async () => {
-  const request = await axios.get(`/api/blogs/all/comments`)
+  const request = await axios.get('/api/blogs/all/comments')
   return request.data
 }
 

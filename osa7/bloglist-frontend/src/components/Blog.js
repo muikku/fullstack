@@ -1,70 +1,77 @@
 import React from 'react'
-import { Redirect, Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { getComments, createComment } from './../reducers/commentsReducer'
+import { likeBlog, deleteBlog } from './../reducers/blogReducer'
+import { notify } from './../reducers/notificationReducer'
+import { Button, Form, Item, Segment } from 'semantic-ui-react'
 
 
 
 const Blog = (props) => {
-    const blog = props.blog
-    const propsReady = () => (blog !== undefined && props.userBlogs !== undefined) ? true : false
-    const onSubmit = (e) => {
-        e.preventDefault()
-        const comment = {message: e.target.message.value, blogId: blog._id }
-        props.createComment(comment)
-        ///notify
-        e.target.message.value = ''
-    }
-        return (
-            <div> {
-                propsReady() ?
-                <div className="content-after-click">
-                    <div className="blog" key={blog._id}>
-                    <div>{blog.title} {blog.author}</div>
-                    <div>{blog.url}</div> 
-                    <div>{blog.likes} likes {' '}
-                    <button onClick={props.like}>like</button>
-                    </div>
-                    <div>added by {blog.user.name ? blog.user.name : 'anonymous'}</div>
-                    {props.userBlogs.map(b => b._id).includes(blog._id) ? <button onClick={props.delete}>delete</button> : null}
-                    </div>
-                    <div>
-                        <h2>comments</h2>
-                        <form onSubmit={onSubmit}>
-                        <input
-                        name="message"
-                        />
-                        <button type="submit">add comment</button>
-                        </form>
-                        {props.comments.filter(c => c.blogId === blog._id).map(c => <div key={c._id}>{c.message}</div>)}
-                    </div>
-                </div>
-                :
-                null
-            } </div>
-        )
-}
+  const blog = props.blogs.find(b => b._id === props.id)
+  const propsReady = () => (blog && props.userBlogs !== undefined) ? true : false
+  const submitComment = (e) => {
+    e.preventDefault()
+    const comment = { message: e.target.message.value, blogId: blog._id }
+    props.createComment(comment)
+    props.notify(`Comment was added to blog ${blog.title}`, 'success', 5000)
+    e.target.message.value = ''
+  }
+  const handleLike = (e) => {
+    e.preventDefault()
+    props.likeBlog(blog)
+    props.notify(`Liked blog ${blog.title}`, 'success', 5000)
+  }
+  const handleDelete = (e) => {
+    e.preventDefault()
+    props.deleteBlog(blog._id)
+    props.notify(`Deleted blog ${blog.title}`, 'error', 5000)
+  }
+  return (
+    <div> {
+      propsReady() ?
+        <div>
+          <Segment>
+            <Item
+              header={<h2>{blog.title}</h2>}
+              meta={blog.author}
+              description={<div><p>{blog.url}</p>added by {blog.user.name ? blog.user.name : 'anonymous'}</div>}
+              extra={<div>{props.blogs.filter(b => b._id === blog._id).map(b => b.likes)} likes {' '}</div>}
+            />
+          </Segment>
+          <div>
+            <Button type="submit">add comment</Button>
+            <Button onClick={handleLike}>like</Button>
+            {props.userBlogs.map(b => b._id).includes(blog._id) ? <Button onClick={handleDelete}>delete</Button> : null}
 
-class Blogx extends React.Component {
-    componentDidMount() {
+            <Segment>
+              <p>comments</p>
+              <Form onSubmit={submitComment}>
+                <Form.Field>
+                  <input
+                    name="message"
+                  />
+                </Form.Field>
+              </Form>
+              <ul className="ui list">
+                {props.comments.filter(c => c.blogId === blog._id).map(c => <li key={c._id}>{c.message}</li>)}
+              </ul>
+            </Segment>
+          </div>
+        </div>
 
-    }
-    componentDidUpdate() {
-
-    }
-    render() {
-        return (
-            <div>
-
-            </div>
-        )
-    }
+        :
+        null
+    } </div>
+  )
 }
 
 const deliverProps = (state) => {
-    return {
-        comments: state.comments
-    }
+  return {
+    comments: state.comments,
+    blogs: state.blogs,
+    userBlogs: state.userBlogs
+  }
 }
 
-export default connect(deliverProps, { getComments, createComment })(Blog)
+export default connect(deliverProps, { getComments, createComment, likeBlog, deleteBlog, notify })(Blog)

@@ -1,8 +1,8 @@
+/* eslint-disable react/display-name */
 import React from 'react'
 import { connect } from 'react-redux'
 import BlogForm from './components/BlogForm'
 import LoginForm from './components/LoginForm'
-import Togglable from './components/Togglable'
 import BlogList from './components/BlogList'
 import { initializeBlogs, likeBlog, deleteBlog } from './reducers/blogReducer'
 import { initializeUserBlogs } from './reducers/userBlogsReducer'
@@ -10,24 +10,32 @@ import { login, logout, inituser } from './reducers/userReducer'
 import blogReducer from './reducers/blogReducer'
 import userReducer from './reducers/userReducer'
 import blogService from './services/blogs'
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
+import { BrowserRouter as Router, Route } from 'react-router-dom'
 import Users from './components/Users'
 import User from './components/User'
 import { getUsers } from './reducers/usersReducer'
 import Blog from './components/Blog'
 import { notify } from './reducers/notificationReducer'
 import { getComments } from './reducers/commentsReducer'
-
-
+import { Container, Tab } from 'semantic-ui-react'
+import Navigator from './components/Navigator'
 
 const Blogs = () => {
   return (
     <div>
-      <Togglable buttonLabel="new blog">
-      <BlogForm      />
-      </Togglable>
-
-      <BlogList />
+      <Tab
+        menu={{ secondary: true, pointing: true }}
+        panes={
+          [
+            { menuItem: 'Blogs', render: () => <Tab.Pane attached={false}>
+              <BlogList />
+            </Tab.Pane> },
+            { menuItem: 'Create new', render: () => <Tab.Pane attached={false}>
+              <BlogForm />
+            </Tab.Pane> }
+          ]
+        }
+      />
     </div>
   )
 }
@@ -44,75 +52,49 @@ class App extends React.Component {
     this.props.initializeBlogs()
     this.props.getComments()
     this.props.getUsers()
-  } 
+  }
 
 
   render() {
 
 
-    const loggedIn = () => (
-      <div>
-      {this.props.user.username} logged in
-        <button onClick={this.props.logout}>
-        logout
-        </button>
-      </div>
-    )
-
-    const frontpage = () => {
-      return (<div>{this.props.user === null ?
-      <Link to="/login">login</Link>
-       :
-      <div>
-        {loggedIn()}
-      </div>
-      }
-      </div>)
-    }
-
-    const FindBlog = (id) => this.props.showBlogs.find(b => b._id === id)
 
     return (
-      <div>
-        <Router>
-          <div>
-  
-          <h1>blog app</h1>        
-  
-        {this.props.notifications.map(e => e)}
+      <Container>
         <div>
-            <Link to="/blogs">blogs</Link>
-            <Link to="/users">users</Link>
-          </div>
-          <Route path="/" render={() => frontpage()} />
-          <Route exact path="/login" render={({history}) => <LoginForm history={history} login={this.props.login} notify={this.props.notify}/>} />
-          
-          {this.props.user ? <div>
-   
-          <Route exact path="/blogs" render={() => Blogs()} />
-          <Route exact path="/users" render={() => 
-          <Users users={this.props.users}/>} 
-          />
-          <Route exact path="/users/:id" render={({match}) => 
-            <User user={this.props.users.find(u => u._id === match.params.id)} />}
-          />
-          <Route exact path="/blogs/:id" render={({match}) => 
-          <Blog 
-          blog={FindBlog(match.params.id)} 
-          like={() => this.props.likeBlog(FindBlog(match.params.id))}
-          userBlogs={this.props.userBlogs}
-          delete={() => this.props.deleteBlog(match.params.id)}
-          /> 
-          }
-          />
-          </div>
-          :
-          null
-        }
-      
-          </div>
-        </Router>
-     </div>
+          <Router>
+            <div>
+
+              <h1>blog app</h1>
+              <Navigator user={this.props.user} logout={this.props.logout}/>
+              {this.props.notifications.map(e => e)}
+
+              <Route exact path="/login" render={({ history }) => <LoginForm history={history} login={this.props.login} notify={this.props.notify}/>} />
+
+              {this.props.user ? <div>
+
+                <Route exact path="/blogs" render={() => Blogs()} />
+                <Route exact path="/users" render={() =>
+                  <Users users={this.props.users}/>}
+                />
+                <Route exact path="/users/:id" render={({ match }) =>
+                  <User user={this.props.users.find(u => u._id === match.params.id)} />}
+                />
+                <Route exact path="/blogs/:id" render={({ match }) =>
+                  <Blog
+                    id={match.params.id}
+                  />
+                }
+                />
+              </div>
+                :
+                null
+              }
+
+            </div>
+          </Router>
+        </div>
+      </Container>
     )
   }
 }
@@ -128,4 +110,12 @@ const mapStateToProps = (state) => {
   }
 }
 
-export default connect(mapStateToProps, { initializeBlogs, getComments, initializeUserBlogs, inituser, getUsers, login, logout, notify, blogReducer, userReducer, deleteBlog, likeBlog })(App)
+export default connect(mapStateToProps,
+  { initializeBlogs,
+    getComments,
+    initializeUserBlogs,
+    inituser,
+    getUsers,
+    login,
+    logout,
+    notify, blogReducer, userReducer, deleteBlog, likeBlog })(App)
