@@ -24,7 +24,6 @@ module.exports = {
             "error",
             2
         ],
-        
         "quotes": [
             "error",
             "single"

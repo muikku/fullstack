@@ -8,7 +8,6 @@ const userReducer = (state = null, action) => {
   case 'LOGOUT':
     return null
   default:
-    console.log(state)
     return state
   }
 }

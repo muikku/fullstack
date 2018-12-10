@@ -28,7 +28,7 @@ export const refreshUserBlogs = () => {
   return async (dispatch) => {
     const loggedUserJson = window.localStorage.getItem('loggedBlogUser')
     if (loggedUserJson){
-      const user = await JSON.parse(loggedUserJson)
+      const user = JSON.parse(loggedUserJson)
       blogService.setToken(user.token)
       const userBlogs = await blogService.getUserBlogs()
       dispatch({

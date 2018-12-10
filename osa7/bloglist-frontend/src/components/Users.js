@@ -11,7 +11,7 @@ const Users = ({ users }) => {
         <div className="ui segment bottom attached">blogs added</div>
       </div>
       {halfmappedUsers.map(u =>
-        <div key={u.key} className="ui horizontal top attached segments">
+        <div key={u._id} className="ui horizontal top attached segments">
           <div className="ui segment top attached">
             <Link to={u.path}>{u.name}</Link>
           </div>

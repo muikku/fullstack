@@ -2,16 +2,18 @@ import blogs from '../services/blogs'
 
 const blogReducer = (state = [], action) => {
   switch(action.type) {
-  case 'CREATE':
+  case 'CREATE_BLOG':
     return state.concat(action.content)
-  case 'INIT':
-    return action.content
-  case 'LIKE': {
-    console.log('changedBlog', action.changedBlog)
-    const filteredState = state.filter(b => b._id !== action.changedBlog._id)
-    return filteredState.concat(action.changedBlog)
+  case 'INIT_BLOGS':
+    return action.data
+  case 'LIKE_BLOG': {
+    const id = action.id
+    console.log(state, action.id)
+    const modifiedBlog = state.find(b => b._id === id)
+    const filteredState = state.filter(b => b._id !== id)
+    return filteredState.concat({ ...modifiedBlog, likes: modifiedBlog.likes + 1 })
   }
-  case 'DELETE':{
+  case 'DELETE_BLOG':{
     const filteredState = state.filter(b => b._id !== action.id)
     return filteredState
   }
@@ -22,10 +24,10 @@ const blogReducer = (state = [], action) => {
 
 export const createBlog = (blog) => {
   return async (dispatch) => {
-    const createdblog = await blogs.create(blog)
-    dispatch({
-      type: 'CREATE',
-      content: createdblog
+    const content = await blogs.create(blog)
+    await dispatch({
+      type: 'CREATE_BLOG',
+      content
     })
   }
 }
@@ -34,20 +36,20 @@ export const initializeBlogs = () => {
   return async (dispatch) => {
     const content = await blogs.getAll()
     dispatch({
-      type: 'INIT',
-      content
+      type: 'INIT_BLOGS',
+      data: content
     })
   }
 }
 
 export const likeBlog = (blog) => {
   return async (dispatch) => {
-    console.log('unchanged blog', blog)
     const likedBlog = { ...blog, likes: blog.likes + 1 }
-    const updatedBlog = await blogs.update(likedBlog._id, likedBlog)
+    await blogs.update(likedBlog._id, likedBlog)
+    const id = blog._id
     dispatch({
-      type: 'LIKE',
-      changedBlog: updatedBlog
+      type: 'LIKE_BLOG',
+      id
     })
   }
 }
@@ -56,7 +58,7 @@ export const deleteBlog = (id) => {
   return async (dispatch) => {
     await blogs.remove(id)
     dispatch({
-      type: 'DELETE',
+      type: 'DELETE_BLOG',
       id
     })
   }

@@ -41,10 +41,10 @@ const Blogs = () => {
 }
 
 class App extends React.Component {
-  componentDidMount = async () => {
+  componentDidMount () {
     const loggedUserJson = window.localStorage.getItem('loggedBlogUser')
     if (loggedUserJson){
-      const user = await JSON.parse(loggedUserJson)
+      const user = JSON.parse(loggedUserJson)
       blogService.setToken(user.token)
       this.props.inituser(user)
       this.props.initializeUserBlogs()
@@ -54,17 +54,12 @@ class App extends React.Component {
     this.props.getUsers()
   }
 
-
   render() {
-
-
-
     return (
       <Container>
         <div>
           <Router>
             <div>
-
               <h1>blog app</h1>
               <Navigator user={this.props.user} logout={this.props.logout}/>
               {this.props.notifications.map(e => e)}

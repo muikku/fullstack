@@ -23,6 +23,7 @@ const create = async (newBlog) => {
 
 const update = async (id, newBlog) => {
   const response = await axios.put(`${baseUrl}/${id}`, newBlog)
+  console.log(response.data)
   return response.data
 } ////token? user? id
 
