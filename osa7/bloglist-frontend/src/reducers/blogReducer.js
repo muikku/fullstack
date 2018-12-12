@@ -3,12 +3,11 @@ import blogs from '../services/blogs'
 const blogReducer = (state = [], action) => {
   switch(action.type) {
   case 'CREATE_BLOG':
-    return state.concat(action.content)
+    return action.data
   case 'INIT_BLOGS':
     return action.data
   case 'LIKE_BLOG': {
     const id = action.id
-    console.log(state, action.id)
     const modifiedBlog = state.find(b => b._id === id)
     const filteredState = state.filter(b => b._id !== id)
     return filteredState.concat({ ...modifiedBlog, likes: modifiedBlog.likes + 1 })
@@ -24,10 +23,11 @@ const blogReducer = (state = [], action) => {
 
 export const createBlog = (blog) => {
   return async (dispatch) => {
-    const content = await blogs.create(blog)
-    await dispatch({
+    await blogs.create(blog)
+    const content = await blogs.getAll()
+    dispatch({
       type: 'CREATE_BLOG',
-      content
+      data: content
     })
   }
 }

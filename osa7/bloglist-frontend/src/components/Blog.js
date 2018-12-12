@@ -8,24 +8,35 @@ import { Button, Form, Item, Segment } from 'semantic-ui-react'
 
 
 const Blog = (props) => {
-  const blog = props.blogs.find(b => b._id === props.id)
+  const blog = props.blog
+
+  ///How does it work without this?
   const propsReady = () => (blog && props.userBlogs !== undefined) ? true : false
+
+  /// Handle Comment Submit
   const submitComment = (e) => {
     e.preventDefault()
+    const blogProperties = [e.target.message.value]
+    if(blogProperties.includes(undefined || null || '')){
+      props.notify('comment field was empty', false, 5000)
+      return null
+    }
     const comment = { message: e.target.message.value, blogId: blog._id }
     props.createComment(comment)
-    props.notify(`Comment was added to blog ${blog.title}`, 'success', 5000)
+    props.notify(`comment was added to blog ${blog.title}`, true, 5000)
     e.target.message.value = ''
   }
+  /// Handle Liking
   const handleLike = (e) => {
     e.preventDefault()
     props.likeBlog(blog)
-    props.notify(`Liked blog ${blog.title}`, 'success', 5000)
+    props.notify(`liked blog ${blog.title}`, true, 5000)
   }
+  /// Handle Delete
   const handleDelete = (e) => {
     e.preventDefault()
     props.deleteBlog(blog._id)
-    props.notify(`Deleted blog ${blog.title}`, 'error', 5000)
+    props.notify(`deleted blog ${blog.title}`, false, 5000)
   }
   return (
     <div> {
@@ -36,30 +47,28 @@ const Blog = (props) => {
               header={<h2>{blog.title}</h2>}
               meta={blog.author}
               description={<div><p>{blog.url}</p>added by {blog.user.name ? blog.user.name : 'anonymous'}</div>}
-              extra={<div>{props.blogs.filter(b => b._id === blog._id).map(b => b.likes)} likes {' '}</div>}
+              extra={<div>{blog.likes} likes {' '}</div>}
             />
           </Segment>
           <div>
-            <Button type="submit">add comment</Button>
-            <Button onClick={handleLike}>like</Button>
-            {props.userBlogs.map(b => b._id).includes(blog._id) ? <Button onClick={handleDelete}>delete</Button> : null}
-
-            <Segment>
-              <p>comments</p>
-              <Form onSubmit={submitComment}>
+            <Form onSubmit={submitComment}>
+              <Button type="submit">add comment</Button>
+              <Button onClick={handleLike}>like</Button>
+              {props.userBlogs.map(b => b._id).includes(blog._id) ? <Button onClick={handleDelete}>delete</Button> : null}
+              <Segment>
+                <p>comments</p>
                 <Form.Field>
                   <input
                     name="message"
                   />
                 </Form.Field>
-              </Form>
-              <ul className="ui list">
-                {props.comments.filter(c => c.blogId === blog._id).map(c => <li key={c._id}>{c.message}</li>)}
-              </ul>
-            </Segment>
+                <ul className="ui list">
+                  {props.comments.filter(c => c.blogId === blog._id).map(c => <li key={c._id}>{c.message}</li>)}
+                </ul>
+              </Segment>
+            </Form>
           </div>
         </div>
-
         :
         null
     } </div>

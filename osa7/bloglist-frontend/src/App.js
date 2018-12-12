@@ -10,14 +10,14 @@ import { login, logout, inituser } from './reducers/userReducer'
 import blogReducer from './reducers/blogReducer'
 import userReducer from './reducers/userReducer'
 import blogService from './services/blogs'
-import { BrowserRouter as Router, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom'
 import Users from './components/Users'
 import User from './components/User'
 import { getUsers } from './reducers/usersReducer'
 import Blog from './components/Blog'
 import { notify } from './reducers/notificationReducer'
 import { getComments } from './reducers/commentsReducer'
-import { Container, Tab } from 'semantic-ui-react'
+import { Container, Tab, Segment } from 'semantic-ui-react'
 import Navigator from './components/Navigator'
 
 const Blogs = () => {
@@ -55,19 +55,25 @@ class App extends React.Component {
   }
 
   render() {
+
     return (
       <Container>
         <div>
           <Router>
             <div>
-              <h1>blog app</h1>
               <Navigator user={this.props.user} logout={this.props.logout}/>
-              {this.props.notifications.map(e => e)}
+              <Segment basic >{this.props.notifications.map(e => e)}</Segment>
+              <Route path="/login"
+                render={({ history }) =>
+                  <LoginForm
+                    history={history}
+                    login={this.props.login}
+                    notify={this.props.notify}
+                  />}
+              />
 
-              <Route exact path="/login" render={({ history }) => <LoginForm history={history} login={this.props.login} notify={this.props.notify}/>} />
 
               {this.props.user ? <div>
-
                 <Route exact path="/blogs" render={() => Blogs()} />
                 <Route exact path="/users" render={() =>
                   <Users users={this.props.users}/>}
@@ -77,15 +83,20 @@ class App extends React.Component {
                 />
                 <Route exact path="/blogs/:id" render={({ match }) =>
                   <Blog
-                    id={match.params.id}
+                    blog={this.props.showBlogs.find(b => b._id === match.params.id)}
                   />
                 }
                 />
               </div>
                 :
-                null
+                <Route exact path='/' render={() => (
+                  this.props.user ? (
+                    null
+                  ) : (
+                    <Redirect to="/login"/>
+                  )
+                )}/>
               }
-
             </div>
           </Router>
         </div>

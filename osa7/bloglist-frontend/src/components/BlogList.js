@@ -15,7 +15,7 @@ const BlogList = (props) => {
         </Button>
       </div>
       <Table>
-        <Table.Body>
+        <Table.Body >
           {
             props.showBlogs.map(b =>
               <Table.Row key={b._id}>

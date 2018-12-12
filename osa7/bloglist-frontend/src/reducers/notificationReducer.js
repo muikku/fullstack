@@ -15,9 +15,9 @@ const notificationReducer = (state = [], action) => {
   }
 }
 
-export const notify = (message, type, time) => {
+export const notify = (message, boolean, time) => {
   return (dispatch) => {
-    const notification = Notification({ message }, type)
+    const notification = Notification({ message }, boolean)
     dispatch({
       type: 'NOTIFY',
       notification

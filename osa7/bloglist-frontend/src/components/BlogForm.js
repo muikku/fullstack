@@ -1,6 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { createBlog } from './../reducers/blogReducer'
+import { getUsers } from './../reducers/usersReducer'
 import { notify } from './../reducers/notificationReducer'
 import { Form, Button } from 'semantic-ui-react'
 
@@ -11,7 +12,7 @@ class blogForm extends React.Component {
       e.persist()
       const blogProperties = [e.target.blogAuthor.value, e.target.blogTitle.value, e.target.blogUrl.value]
       if(blogProperties.includes(undefined || null || '')){
-        this.props.notify('all fields must be filled', 'error', 5000)
+        this.props.notify('all fields must be filled', false, 5000)
         return null
       }
       try{
@@ -19,12 +20,11 @@ class blogForm extends React.Component {
           author: e.target.blogAuthor.value,
           title: e.target.blogTitle.value,
           url: e.target.blogUrl.value,
-          likes: 0,
-          user: this.props.user._id
+          likes: 0
         })
 
-
-        this.props.notify(`a new blog ${e.target.blogTitle.value} by ${e.target.blogAuthor.value} added`, 'success', 5000)
+        this.props.getUsers()
+        this.props.notify(`a new blog ${e.target.blogTitle.value} by ${e.target.blogAuthor.value} added`, true, 5000)
 
         e.target.blogAuthor.value = ''
         e.target.blogTitle.value = ''
@@ -32,7 +32,7 @@ class blogForm extends React.Component {
 
       }catch(exception){
         console.log(exception)
-        this.props.notify('could not add blog :(', 'error', 5000)
+        this.props.notify('could not add blog :(', false, 5000)
       }
     }
     render() {
@@ -73,4 +73,4 @@ const mapStateToProps = (state) => {
   }
 }
 
-export default connect(mapStateToProps, { createBlog, notify })(blogForm)
+export default connect(mapStateToProps, { createBlog, notify, getUsers })(blogForm)

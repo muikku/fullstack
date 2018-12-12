@@ -1,22 +1,29 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 
-const Notification = ({ message }, style) => {
+import { Message } from 'semantic-ui-react'
+
+const Notification = ({ message }, boolean) => {
   if (message === null) {
     return null
   }
+
   return (
-    <div className={style} key={message.toString()}>
-      {message}
+    <div key={message.toString()}>
+
+      {boolean ?
+        <Message positive>
+          <Message.Header>{message}</Message.Header>
+        </Message>
+        :
+        <Message negative>
+          <Message.Header>{message}</Message.Header>
+        </Message>
+      }
+
     </div>
   )
 }
 
-Notification.PropTypes = {
-  message: PropTypes.string.isRequired,
-  style: PropTypes.string.isRequired,
-  className: PropTypes.string.isRequired,
-  key: PropTypes.string.isRequired
-}
+
 
 export default Notification
