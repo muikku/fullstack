@@ -5,8 +5,6 @@ import { likeBlog, deleteBlog } from './../reducers/blogReducer'
 import { notify } from './../reducers/notificationReducer'
 import { Button, Form, Item, Segment } from 'semantic-ui-react'
 
-
-
 const Blog = (props) => {
   const blog = props.blog
 

@@ -4,9 +4,15 @@ import { createBlog } from './../reducers/blogReducer'
 import { getUsers } from './../reducers/usersReducer'
 import { notify } from './../reducers/notificationReducer'
 import { Form, Button } from 'semantic-ui-react'
+import { Redirect } from 'react-router-dom'
 
 
 class blogForm extends React.Component {
+  state = {
+    redir: false,
+    id: null
+  }
+
     onSubmit = async (e) => {
       e.preventDefault()
       e.persist()
@@ -30,12 +36,24 @@ class blogForm extends React.Component {
         e.target.blogTitle.value = ''
         e.target.blogUrl.value = ''
 
+        const userblogs = this.props.usersBlogs.reverse()
+        const id = userblogs[0]._id
+
+        this.setState({
+          redir: true,
+          id
+        })
+
       }catch(exception){
         console.log(exception)
         this.props.notify('could not add blog :(', false, 5000)
       }
     }
     render() {
+      if(this.state.redir){
+        const path = `/blogs/${this.state.id}`
+        return (<Redirect to={path}/>)
+      }
       return (
         <div>
           <h2>create new blog</h2>
@@ -69,7 +87,8 @@ class blogForm extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    user: state.user
+    user: state.user,
+    usersBlogs: state.userBlogs
   }
 }
 

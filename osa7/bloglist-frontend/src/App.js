@@ -1,9 +1,8 @@
 /* eslint-disable react/display-name */
 import React from 'react'
 import { connect } from 'react-redux'
-import BlogForm from './components/BlogForm'
+import Blogs from './components/Blogs'
 import LoginForm from './components/LoginForm'
-import BlogList from './components/BlogList'
 import { initializeBlogs, likeBlog, deleteBlog } from './reducers/blogReducer'
 import { initializeUserBlogs } from './reducers/userBlogsReducer'
 import { login, logout, inituser } from './reducers/userReducer'
@@ -17,28 +16,9 @@ import { getUsers } from './reducers/usersReducer'
 import Blog from './components/Blog'
 import { notify } from './reducers/notificationReducer'
 import { getComments } from './reducers/commentsReducer'
-import { Container, Tab, Segment } from 'semantic-ui-react'
+import { Container, Segment } from 'semantic-ui-react'
 import Navigator from './components/Navigator'
 
-const Blogs = () => {
-  return (
-    <div>
-      <Tab
-        menu={{ secondary: true, pointing: true }}
-        panes={
-          [
-            { menuItem: 'Blogs', render: () => <Tab.Pane attached={false}>
-              <BlogList />
-            </Tab.Pane> },
-            { menuItem: 'Create new', render: () => <Tab.Pane attached={false}>
-              <BlogForm />
-            </Tab.Pane> }
-          ]
-        }
-      />
-    </div>
-  )
-}
 
 class App extends React.Component {
   componentDidMount () {
@@ -55,26 +35,27 @@ class App extends React.Component {
   }
 
   render() {
-
+    const redirectToLogin = ['/', '/users', '/users/:id', '/blogs', '/blogs/:id', '/blogs/:id/comments']
     return (
       <Container>
         <div>
           <Router>
             <div>
-              <Navigator user={this.props.user} logout={this.props.logout}/>
+              <Navigator />
               <Segment basic >{this.props.notifications.map(e => e)}</Segment>
-              <Route path="/login"
-                render={({ history }) =>
-                  <LoginForm
-                    history={history}
-                    login={this.props.login}
-                    notify={this.props.notify}
-                  />}
+              <Route path="/login" render={({ history }) =>
+                <LoginForm
+                  history={history}
+                />}
               />
 
-
               {this.props.user ? <div>
-                <Route exact path="/blogs" render={() => Blogs()} />
+                <Route exact path='/' render={() =>
+                  <Redirect to='/blogs'/>}
+                />
+                <Route exact path="/blogs" render={() =>
+                  <Blogs />}
+                />
                 <Route exact path="/users" render={() =>
                   <Users users={this.props.users}/>}
                 />
@@ -82,21 +63,25 @@ class App extends React.Component {
                   <User user={this.props.users.find(u => u._id === match.params.id)} />}
                 />
                 <Route exact path="/blogs/:id" render={({ match }) =>
-                  <Blog
-                    blog={this.props.showBlogs.find(b => b._id === match.params.id)}
+                  <Blog blog={this.props.showBlogs.find(b => b._id === match.params.id)}
                   />
                 }
                 />
               </div>
                 :
-                <Route exact path='/' render={() => (
-                  this.props.user ? (
-                    null
-                  ) : (
-                    <Redirect to="/login"/>
-                  )
-                )}/>
+                <div>{redirectToLogin.map(r =>
+                  <Route key={r} exact path={r} render={() => (
+                    this.props.user ? (
+                      null
+                    ) : (
+                      <Redirect to="/login"/>
+                    )
+                  )}
+                  />
+                )
+                }</div>
               }
+
             </div>
           </Router>
         </div>
