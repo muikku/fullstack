@@ -62,8 +62,8 @@ class App extends React.Component {
                 <Route exact path="/users/:id" render={({ match }) =>
                   <User user={this.props.users.find(u => u._id === match.params.id)} />}
                 />
-                <Route exact path="/blogs/:id" render={({ match }) =>
-                  <Blog blog={this.props.showBlogs.find(b => b._id === match.params.id)}
+                <Route exact path="/blogs/:id" render={({ match, history }) =>
+                  <Blog history={history} blog={this.props.showBlogs.find(b => b._id === match.params.id)}
                   />
                 }
                 />

@@ -35,6 +35,7 @@ const Blog = (props) => {
     e.preventDefault()
     props.deleteBlog(blog._id)
     props.notify(`deleted blog ${blog.title}`, false, 5000)
+    props.history.push('/blogs')
   }
   return (
     <div> {
