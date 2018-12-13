@@ -1,4 +1,9 @@
 /* eslint-disable react/display-name */
+
+//some features are not updating immenitly
+//when loggin in, users blogs are not deletable,
+//but after refres they are
+
 import React from 'react'
 import { connect } from 'react-redux'
 import Blogs from './components/Blogs'
