@@ -4,6 +4,7 @@ import { getComments, createComment } from './../reducers/commentsReducer'
 import { likeBlog, deleteBlog } from './../reducers/blogReducer'
 import { notify } from './../reducers/notificationReducer'
 import { Button, Form, Item, Segment } from 'semantic-ui-react'
+import { getUsers } from './../reducers/usersReducer'
 
 const Blog = (props) => {
   const blog = props.blog
@@ -34,6 +35,7 @@ const Blog = (props) => {
   const handleDelete = (e) => {
     e.preventDefault()
     props.deleteBlog(blog._id)
+    props.getUsers()
     props.notify(`deleted blog ${blog.title}`, false, 5000)
     props.history.push('/blogs')
   }
@@ -82,4 +84,4 @@ const deliverProps = (state) => {
   }
 }
 
-export default connect(deliverProps, { getComments, createComment, likeBlog, deleteBlog, notify })(Blog)
+export default connect(deliverProps, { getComments, createComment, likeBlog, deleteBlog, notify, getUsers })(Blog)
